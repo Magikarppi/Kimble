@@ -1,22 +1,24 @@
 export interface IPlayer {
     color: string;
     pieceOnePositions: (number | null)[];
-    hasPassedTheBeginning: boolean;
+    positionSequence: number[];
     startingPosition: number;
     finishPositions: number[];
-    rollDice: () => number;
+    pieceOneTimesMovedAfterLeavingBase: number;
 }
 
 const boardLength = 28;
-const finishLength = 4;
 const boardPositions = Array.from({ length: boardLength }, (_, i) => i + 1);
 console.log("boardPositions: ", boardPositions);
+
+const getLatestPosition = (player: IPlayer) => {
+    return player.pieceOnePositions[player.pieceOnePositions.length - 1];
+};
 
 const createPlayer = (color: string, startingPosition: number): IPlayer => {
     return {
         color,
         pieceOnePositions: [null],
-        hasPassedTheBeginning: false,
         startingPosition,
         finishPositions: [
             startingPosition,
@@ -24,79 +26,42 @@ const createPlayer = (color: string, startingPosition: number): IPlayer => {
             startingPosition + 2,
             startingPosition + 3,
         ],
-        rollDice: () => Math.floor(Math.random() * 6) + 1,
+        positionSequence: Array.from(
+            { length: boardLength },
+            (_, i) => (i + startingPosition) % (boardLength + 1)
+        ),
+        pieceOneTimesMovedAfterLeavingBase: 0,
     };
 };
-
-// const boardPositions = Array.from({ length: boardLength }, (_, i) => i + 1);
-
-// const playerOffsets: { [key: string]: number } = {
-//     blue: 0,
-//     yellow: 7,
-//     green: 14,
-//     red: 21,
-// };
-
-// const finishPositions: { [key: string]: number[] } = {
-//     blue: [29, 30, 31, 32],
-//     yellow: [],
-//     green: Array.from(
-//         { length: finishLength },
-//         (_, i) => boardLength + i + 1 - playerOffsets.green
-//     ),
-//     red: Array.from(
-//         { length: finishLength },
-//         (_, i) => boardLength + i + 1 - playerOffsets.red
-//     ),
-// };
 
 let gameOver = false;
 const movePiece = (player: IPlayer, players: IPlayer[]) => {
     const diceRoll = Math.floor(Math.random() * 6) + 1;
-    const latestPosition =
-        player.pieceOnePositions[player.pieceOnePositions.length - 1];
+    const latestPosition = getLatestPosition(player);
 
     console.log(`\n${player.color} rolls a ${diceRoll}!`);
     console.log(
         `${player.color} pieceOnePositions before: ${player.pieceOnePositions}`
     );
 
+    if (latestPosition === null && diceRoll !== 6) {
+        player.pieceOnePositions.push(null);
+    }
+
     if (diceRoll === 6 && latestPosition === null) {
         // Move piece onto the board
         player.pieceOnePositions.push(player.startingPosition);
+        player.pieceOneTimesMovedAfterLeavingBase += 1;
     } else if (latestPosition !== null) {
         let newPosition = (latestPosition + diceRoll) % 28;
+        console.log(`${player.color} newPosition: ${newPosition}`);
 
-        // Wrap around the board
-        // if (newPosition > boardLength) {
-        //     newPosition -= boardLength;
-        // }
-
-        // Check if the new position is occupied by another player's piece
-        for (const otherPlayer of players) {
-            if (otherPlayer !== player) {
-                if (otherPlayer.pieceOnePositions?.includes(newPosition)) {
-                    // "Eat" the piece and send it back to base
-                    otherPlayer.pieceOnePositions.push(null);
-                    otherPlayer.hasPassedTheBeginning = false;
-                    console.log(
-                        `${player.color} eats ${otherPlayer.color}'s piece!`
-                    );
-                    console.log(
-                        "otherPlayer.pieceOnePositions: ",
-                        otherPlayer.pieceOnePositions
-                    );
-                }
-            }
-        }
-
-        if (newPosition > player.startingPosition + 6) {
-            player.hasPassedTheBeginning = true;
-            console.log(`${player.color} has passed the beginning!`);
-        }
+        console.log(
+            `${player.color} pieceOneTimesMovedAfterLeavingBase: ${player.pieceOneTimesMovedAfterLeavingBase}`
+        );
 
         if (
-            player.hasPassedTheBeginning &&
+            player.pieceOneTimesMovedAfterLeavingBase > 4 &&
             player.finishPositions.includes(newPosition)
         ) {
             /* TODO: Also Check if the position is occupied by player's other piece (which have not yet been implemented) 
@@ -105,8 +70,15 @@ const movePiece = (player: IPlayer, players: IPlayer[]) => {
             let isOccupied = false;
             if (!isOccupied) {
                 player.pieceOnePositions.push(newPosition);
+                player.pieceOneTimesMovedAfterLeavingBase += 1;
                 console.log(
-                    `!!!!${player.color} has reached the end of the board at ${player.pieceOnePositions}!!!!!`
+                    `!!!!${player.color} has reached the end of the board at ${newPosition}!!!!!`
+                );
+                console.log(
+                    `${player.color} finishpositions: ${player.finishPositions}`
+                );
+                console.log(
+                    `${player.color} startingPosition: ${player.startingPosition}`
                 );
                 console.log(
                     `${player.color} pieceOnePositions: ${player.pieceOnePositions}`
@@ -116,13 +88,51 @@ const movePiece = (player: IPlayer, players: IPlayer[]) => {
                 );
                 gameOver = true;
             }
+        } else if (
+            player.pieceOneTimesMovedAfterLeavingBase > 4 &&
+            newPosition > Math.max(...player.finishPositions)
+        ) {
+            const exactRollNeeded = player.finishPositions.find(
+                (pos) => pos === newPosition
+            );
+            if (exactRollNeeded !== undefined) {
+                player.pieceOnePositions.push(newPosition);
+                player.pieceOneTimesMovedAfterLeavingBase += 1;
+                console.log(
+                    `${player.color} newPosition: ${player.pieceOnePositions}`
+                );
+            } else {
+                console.log(
+                    `${player.color} needs an exact roll to reach the end of the board!`
+                );
+            }
         } else {
             player.pieceOnePositions.push(newPosition);
-            console.log(
-                `${player.color} newPosition: ${player.pieceOnePositions}`
-            );
+            player.pieceOneTimesMovedAfterLeavingBase += 1;
+
+            // Check if the new position is occupied by another player's piece
+            for (const otherPlayer of players) {
+                if (otherPlayer !== player) {
+                    if (getLatestPosition(otherPlayer) === newPosition) {
+                        // "Eat" the piece and send it back to base
+                        console.log(
+                            `${otherPlayer.color} pieceOnePositions before: ${otherPlayer.pieceOnePositions}`
+                        );
+                        console.log(
+                            `${otherPlayer.color} has piece in position ${newPosition} eaten by ${player.color}!`
+                        );
+                        otherPlayer.pieceOnePositions.push(null);
+                        otherPlayer.pieceOneTimesMovedAfterLeavingBase = 0;
+                        console.log(
+                            `${otherPlayer.color} pieceOnePositions after: ${otherPlayer.pieceOnePositions}`
+                        );
+                    }
+                }
+            }
+            console.log(`${player.color} newPosition: ${newPosition}`);
         }
     }
+
     console.log(
         `${player.color} pieceOnePositions after: ${player.pieceOnePositions}`
     );
@@ -159,9 +169,25 @@ const playGame = () => {
 
     console.log("Game Over!");
     console.log("yellow pieceOnePositions: ", players[1].pieceOnePositions);
+    console.log(
+        "yellow pieceOnePositions length: ",
+        players[1].pieceOnePositions.length
+    );
     console.log("green pieceOnePositions: ", players[2].pieceOnePositions);
+    console.log(
+        "green pieceOnePositions length: ",
+        players[2].pieceOnePositions.length
+    );
     console.log("red pieceOnePositions: ", players[3].pieceOnePositions);
+    console.log(
+        "red pieceOnePositions length: ",
+        players[3].pieceOnePositions.length
+    );
     console.log("blue pieceOnePositions: ", players[0].pieceOnePositions);
+    console.log(
+        "blue pieceOnePositions length: ",
+        players[0].pieceOnePositions.length
+    );
     console.log("playerTurns: ", playerTurns);
 };
 
