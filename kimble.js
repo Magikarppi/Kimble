@@ -1,147 +1,157 @@
 "use strict";
-const basePosition = -1;
-const totalPositions = 28;
-const numberOfPlayers = 4;
-const sequenceStartIncrements = 7;
-const piecesPerPlayer = 4;
-// Generate dynamic movement sequences for each player
-const generateMovementSequence = (startPosition) => {
-    let sequence = [];
-    for (let i = 0; i < totalPositions; i++) {
-        sequence.push((startPosition + i) % totalPositions);
-    }
-    return sequence;
-};
-const rollDice = () => Math.floor(Math.random() * 6) + 1;
-// Initialize a new game
-const initializePlayers = () => {
-    return Array.from({ length: numberOfPlayers }, (_, i) => ({
-        positions: Array(piecesPerPlayer).fill(basePosition),
-        sequence: generateMovementSequence(i * sequenceStartIncrements),
-        finishPositions: [],
-        piecesDistanceMoved: Array(piecesPerPlayer).fill(0),
-        piecesFinished: Array(piecesPerPlayer).fill(null),
-        activePieceIndex: 0,
-    }));
-};
-// Function to find which player and piece are at a given position, excluding finished pieces
-const findPlayerAndPieceAtPosition = (position, players) => {
-    console.log("Finding player and piece at position: ", position);
-    for (let i = 0; i < numberOfPlayers; i++) {
-        const player = players[i];
-        console.log("Player: ", player);
-        for (let pieceIndex = 0; pieceIndex < piecesPerPlayer; pieceIndex++) {
-            // console.log("Piece index: ", pieceIndex);
-            // console.log(
-            //     "player.positions[pieceIndex]: ",
-            //     player.positions[pieceIndex]
-            // );
-            // console.log(
-            //     "player.piecesFinished[pieceIndex]: ",
-            //     player.piecesFinished[pieceIndex]
-            // );
-            if (player.positions[pieceIndex] === position &&
-                player.piecesFinished[pieceIndex] === null) {
-                console.log("Returning player and piece: ", i, pieceIndex);
-                return { playerIndex: i, pieceIndex };
-            }
+let gameOver = false;
+const boardLength = 28;
+const gameBoard = Array.from({ length: boardLength }, (_, i) => null);
+const players = [
+    {
+        name: "blue",
+        finishedPieces: [],
+        piecesInBase: [
+            { name: "blue-1", distanceMoved: 0 },
+            { name: "blue-2", distanceMoved: 0 },
+            { name: "blue-3", distanceMoved: 0 },
+            { name: "blue-4", distanceMoved: 0 },
+        ],
+        diceRollsCount: 0,
+        firstPositionOnBoard: 0,
+        finishPositions: [0, 1, 2, 3],
+        overFinishAreaPositions: [4, 5, 6],
+    },
+    {
+        name: "yellow",
+        finishedPieces: [],
+        piecesInBase: [
+            { name: "yellow-1", distanceMoved: 0 },
+            { name: "yellow-2", distanceMoved: 0 },
+            { name: "yellow-3", distanceMoved: 0 },
+            { name: "yellow-4", distanceMoved: 0 },
+        ],
+        diceRollsCount: 0,
+        firstPositionOnBoard: 7,
+        finishPositions: [7, 8, 9, 10],
+        overFinishAreaPositions: [11, 12, 13],
+    },
+    {
+        name: "green",
+        finishedPieces: [],
+        piecesInBase: [
+            { name: "green-1", distanceMoved: 0 },
+            { name: "green-2", distanceMoved: 0 },
+            { name: "green-3", distanceMoved: 0 },
+            { name: "green-4", distanceMoved: 0 },
+        ],
+        diceRollsCount: 0,
+        firstPositionOnBoard: 14,
+        finishPositions: [14, 15, 16, 17],
+        overFinishAreaPositions: [18, 19, 20],
+    },
+    {
+        name: "red",
+        finishedPieces: [],
+        piecesInBase: [
+            { name: "red-1", distanceMoved: 0 },
+            { name: "red-2", distanceMoved: 0 },
+            { name: "red-3", distanceMoved: 0 },
+            { name: "red-4", distanceMoved: 0 },
+        ],
+        diceRollsCount: 0,
+        firstPositionOnBoard: 21,
+        finishPositions: [21, 22, 23, 24],
+        overFinishAreaPositions: [25, 26, 27],
+    },
+];
+// let turnsCompleted = 0;
+while (!gameOver) {
+    const startingPlayerIndex = Math.floor(Math.random() * players.length);
+    const playerTurnsOrder = players
+        .slice(startingPlayerIndex)
+        .concat(players.slice(0, startingPlayerIndex));
+    for (const player of playerTurnsOrder) {
+        const diceRoll = Math.floor(Math.random() * 6) + 1;
+        console.log(`${player.name} rolled ${diceRoll}`);
+        player.diceRollsCount += 1;
+        console.log("gameBoard", gameBoard.map((e, i) => ({ i: i, e: e })));
+        const playersPieceOnGameBoard = gameBoard.find((v, i) => {
+            return v && v.name.startsWith(player.name);
+        });
+        if (!playersPieceOnGameBoard && player.piecesInBase.length === 1) {
+            console.log(`Player ${player.name} has no pieces on the board and is trying to get a 6 to move the last piece out of the base`);
+            console.log("player.piecesInBase", player.piecesInBase);
+            console.log("player.finishedPieces", player.finishedPieces);
         }
-    }
-    return { playerIndex: -1, pieceIndex: -1 };
-};
-// Function to simulate a single game
-const simulateGame = () => {
-    const players = initializePlayers();
-    players.forEach((player) => {
-        player.finishPositions = player.sequence.slice(0, 4);
-    });
-    console.log("Game started with players: ", players);
-    let currentPlayerIndex = Math.floor(Math.random() * players.length);
-    let gameOver = false;
-    while (!gameOver) {
-        const player = players[currentPlayerIndex];
-        const activePieceIndex = player.activePieceIndex;
-        const diceRoll = rollDice();
-        console.log(`Player ${currentPlayerIndex + 1}'s turn!!!!!!!!!!!!!!1`);
-        console.log(`Player ${currentPlayerIndex + 1} positions before ${player.positions}.`);
-        console.log(`Player ${currentPlayerIndex + 1} piece distance moved: ${player.piecesDistanceMoved[activePieceIndex]}.`);
-        console.log(`Player ${currentPlayerIndex + 1} rolled a ${diceRoll}.`);
-        if (player.positions[activePieceIndex] === basePosition) {
-            console.log("Player's activePiece is in base position.");
+        if (!playersPieceOnGameBoard) {
             if (diceRoll === 6) {
-                console.log("Player rolled a 6, moving piece out of base to: ", player.sequence[0]);
-                player.positions[activePieceIndex] = player.sequence[0];
-                player.piecesDistanceMoved[activePieceIndex] = 0;
+                const pieceToMove = player.piecesInBase.shift();
+                if (pieceToMove) {
+                    pieceToMove.distanceMoved = 0;
+                    gameBoard[player.firstPositionOnBoard] = pieceToMove;
+                }
             }
         }
         else {
-            let nextPosition = (player.positions[activePieceIndex] + diceRoll) %
-                totalPositions;
-            console.log(`% Player ${currentPlayerIndex + 1} nextPosition: ${nextPosition}.`);
-            const finishIndex = player.finishPositions.indexOf(nextPosition);
-            console.log(`Player ${currentPlayerIndex + 1} finishIndex: ${finishIndex}.`);
-            // Check if the new position is occupied by another player's piece
-            const { playerIndex: occupiedPlayerIndex, pieceIndex: occupiedPieceIndex, } = findPlayerAndPieceAtPosition(nextPosition, players);
-            if (occupiedPlayerIndex !== -1 &&
-                occupiedPlayerIndex !== currentPlayerIndex) {
-                if (players[occupiedPlayerIndex].piecesFinished[occupiedPieceIndex] === null) {
-                    // Move the occupied piece back to base if it's another player's piece
-                    const occupiedPlayer = players[occupiedPlayerIndex];
-                    console.log(`Occupied player's positions before: ${occupiedPlayer.positions}.`);
-                    occupiedPlayer.positions[occupiedPieceIndex] = basePosition;
-                    occupiedPlayer.piecesDistanceMoved[occupiedPieceIndex] = 0;
-                    console.log(`Player ${currentPlayerIndex + 1} sent Player ${occupiedPlayerIndex + 1}'s piece ${occupiedPieceIndex + 1} back to base.`);
-                    console.log(`Occupied player's positions after: ${occupiedPlayer.positions}.`);
-                }
+            // get the index of the piece on the game board
+            const playersPieceIndex = gameBoard.findIndex((piece) => piece && piece.name === playersPieceOnGameBoard.name);
+            console.log("playersPieceIndex", playersPieceIndex);
+            const newPosition = (playersPieceIndex + diceRoll) % boardLength;
+            const playersNextSixPositions = [];
+            for (let i = 1; i <= 6; i++) {
+                playersNextSixPositions.push((playersPieceIndex + i) % boardLength);
             }
-            console.log(`Player ${currentPlayerIndex + 1} piece distance moved: ${player.piecesDistanceMoved[activePieceIndex]}.`);
-            console.log(`Player ${currentPlayerIndex + 1}.piecesFinished[finishIndex]: ${player.piecesFinished[finishIndex]}.`);
-            if (finishIndex !== -1 &&
-                player.piecesDistanceMoved[activePieceIndex] > 20 &&
-                player.piecesFinished[finishIndex] === null) {
-                player.positions[activePieceIndex] = nextPosition; // Move piece to finish position
-                player.piecesFinished[finishIndex] = activePieceIndex; // Mark the piece number in the finish spot
-                player.piecesDistanceMoved[activePieceIndex] += diceRoll;
-                console.log(`Player ${currentPlayerIndex + 1} landed piece ${activePieceIndex + 1} on finish position ${nextPosition}.`);
-                console.log(`Player ${currentPlayerIndex + 1} piecesFinished after: ${player.piecesFinished}.`);
-                if (player.piecesFinished.every((x) => x !== null)) {
+            console.log("playersNextSixPositions", playersNextSixPositions);
+            console.log("!player.finishPositions.includes(newPosition)", !player.finishPositions.includes(newPosition));
+            console.log("playersNextSixPositions.includes(newPosition)", playersNextSixPositions.includes(newPosition));
+            // const isPieceGoingOverFinishArea =
+            //     playersPieceOnGameBoard.distanceMoved > 20 &&
+            //     !player.finishPositions.includes(newPosition) &&
+            //     player.finishPositions.every((p) =>
+            //         playersNextSixPositions.includes(p)
+            //     ) &&
+            //     playersNextSixPositions.includes(newPosition);
+            const isPieceGoingOverFinishArea = playersPieceOnGameBoard.distanceMoved > 20 &&
+                !player.finishPositions.includes(newPosition) &&
+                player.overFinishAreaPositions.includes(newPosition);
+            console.log("isPieceGoingOverFinishArea", isPieceGoingOverFinishArea);
+            if (playersPieceOnGameBoard.distanceMoved > 20 &&
+                player.finishPositions.includes(newPosition)) {
+                console.log(`Moving ${playersPieceOnGameBoard.name} to finish area`);
+                console.log("player.finishPositions", player.finishPositions);
+                console.log("newPosition", newPosition);
+                // set the current position of the piece to null
+                gameBoard[playersPieceIndex] = null;
+                playersPieceOnGameBoard.distanceMoved += diceRoll;
+                // move the piece to the finish area
+                player.finishedPieces.push(playersPieceOnGameBoard);
+                console.log("player.finishedPieces", player.finishedPieces);
+                if (player.finishedPieces.length === 4) {
                     gameOver = true;
-                    return currentPlayerIndex; // Return the winner's index
-                }
-                else if (activePieceIndex < piecesPerPlayer - 1) {
-                    player.activePieceIndex++; // Activate the next piece
+                    break;
                 }
             }
-            else if (finishIndex !== -1 &&
-                player.piecesFinished[finishIndex] !== null) {
-                console.log(`Finish position ${nextPosition} already occupied by piece ${player.piecesFinished[finishIndex]}.`);
-            }
-            else if (player.piecesDistanceMoved[activePieceIndex] > 20 &&
-                player.sequence.slice(4, 6).includes(nextPosition)) {
-                console.log(`Player ${currentPlayerIndex + 1} cannot move piece ${activePieceIndex + 1} to position ${nextPosition} because that would "go over the board".`);
+            else if (isPieceGoingOverFinishArea) {
+                console.log(`Cannot move ${playersPieceOnGameBoard.name} to position ${newPosition} because it would go over the finish area. MaxPos: ${player.finishPositions[3]}`);
             }
             else {
-                console.log(`Player ${currentPlayerIndex + 1} moving piece ${activePieceIndex + 1} to position ${nextPosition}.`);
-                player.positions[activePieceIndex] = nextPosition;
-                player.piecesDistanceMoved[activePieceIndex] += diceRoll;
+                // check if the new position is occupied by another player's piece
+                const pieceAtNewPosition = gameBoard[newPosition];
+                if (pieceAtNewPosition) {
+                    const otherPlayer = players.find((p) => pieceAtNewPosition.name.startsWith(p.name));
+                    if (otherPlayer) {
+                        console.log(`Sending ${pieceAtNewPosition.name} back to base`);
+                        // send the other player's piece back to base
+                        otherPlayer.piecesInBase.push(pieceAtNewPosition);
+                        pieceAtNewPosition.distanceMoved = 0;
+                        console.log("otherPlayer.piecesInBase", otherPlayer.piecesInBase);
+                    }
+                }
+                // set the current position of the piece to null
+                gameBoard[playersPieceIndex] = null;
+                // set the new position of the piece on the game board
+                gameBoard[newPosition] = playersPieceOnGameBoard;
+                // update the distance moved by the piece
+                playersPieceOnGameBoard.distanceMoved += diceRoll;
             }
         }
-        console.log(`Player ${currentPlayerIndex + 1} positions after ${player.positions}.`);
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        // turnsCompleted += 1;
     }
-    // If game is over, return the index of the winning player
-    return currentPlayerIndex;
-};
-// Track wins for each player
-const trackWins = (numberOfGames) => {
-    const winCounts = Array(numberOfPlayers).fill(0);
-    for (let i = 0; i < numberOfGames; i++) {
-        const winnerIndex = simulateGame();
-        winCounts[winnerIndex]++;
-    }
-    console.log("Win counts for each player after " + numberOfGames + " games:");
-    winCounts.forEach((wins, idx) => {
-        console.log(`Player ${idx + 1}: ${wins} wins`);
-    });
-};
-trackWins(process.argv[2] ? parseInt(process.argv[2]) : 1);
+}
+console.log(players);
