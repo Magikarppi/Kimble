@@ -93,25 +93,12 @@ while (!gameOver) {
             const playersPieceIndex = gameBoard.findIndex((piece) => piece && piece.name === playersPieceOnGameBoard.name);
             console.log("playersPieceIndex", playersPieceIndex);
             const newPosition = (playersPieceIndex + diceRoll) % boardLength;
-            const playersNextSixPositions = [];
-            for (let i = 1; i <= 6; i++) {
-                playersNextSixPositions.push((playersPieceIndex + i) % boardLength);
-            }
-            console.log("playersNextSixPositions", playersNextSixPositions);
-            console.log("!player.finishPositions.includes(newPosition)", !player.finishPositions.includes(newPosition));
-            console.log("playersNextSixPositions.includes(newPosition)", playersNextSixPositions.includes(newPosition));
-            // const isPieceGoingOverFinishArea =
-            //     playersPieceOnGameBoard.distanceMoved > 20 &&
-            //     !player.finishPositions.includes(newPosition) &&
-            //     player.finishPositions.every((p) =>
-            //         playersNextSixPositions.includes(p)
-            //     ) &&
-            //     playersNextSixPositions.includes(newPosition);
-            const isPieceGoingOverFinishArea = playersPieceOnGameBoard.distanceMoved > 20 &&
+            const isPieceCloseToFinish = playersPieceOnGameBoard.distanceMoved > 20;
+            const isPieceGoingOverFinishArea = isPieceCloseToFinish &&
                 !player.finishPositions.includes(newPosition) &&
                 player.overFinishAreaPositions.includes(newPosition);
             console.log("isPieceGoingOverFinishArea", isPieceGoingOverFinishArea);
-            if (playersPieceOnGameBoard.distanceMoved > 20 &&
+            if (isPieceCloseToFinish &&
                 player.finishPositions.includes(newPosition)) {
                 console.log(`Moving ${playersPieceOnGameBoard.name} to finish area`);
                 console.log("player.finishPositions", player.finishPositions);
