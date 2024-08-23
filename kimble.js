@@ -1,228 +1,83 @@
 "use strict";
-const players = [
-    {
-        name: "blue",
-        finishedPieces: [],
-        piecesInBase: [
-            { name: "blue-1", distanceMoved: 0 },
-            { name: "blue-2", distanceMoved: 0 },
-            { name: "blue-3", distanceMoved: 0 },
-            { name: "blue-4", distanceMoved: 0 },
-        ],
-        diceRollsCount: 0,
-        firstPositionOnBoard: 0,
-        freeFinishPositions: [0, 1, 2, 3],
-        overFinishAreaPositions: [4, 5, 6],
-        resrvedFinishPositions: [],
-    },
-    {
-        name: "yellow",
-        finishedPieces: [],
-        piecesInBase: [
-            { name: "yellow-1", distanceMoved: 0 },
-            { name: "yellow-2", distanceMoved: 0 },
-            { name: "yellow-3", distanceMoved: 0 },
-            { name: "yellow-4", distanceMoved: 0 },
-        ],
-        diceRollsCount: 0,
-        firstPositionOnBoard: 7,
-        freeFinishPositions: [7, 8, 9, 10],
-        overFinishAreaPositions: [11, 12, 13],
-        resrvedFinishPositions: [],
-    },
-    {
-        name: "green",
-        finishedPieces: [],
-        piecesInBase: [
-            { name: "green-1", distanceMoved: 0 },
-            { name: "green-2", distanceMoved: 0 },
-            { name: "green-3", distanceMoved: 0 },
-            { name: "green-4", distanceMoved: 0 },
-        ],
-        diceRollsCount: 0,
-        firstPositionOnBoard: 14,
-        freeFinishPositions: [14, 15, 16, 17],
-        overFinishAreaPositions: [18, 19, 20],
-        resrvedFinishPositions: [],
-    },
-    {
-        name: "red",
-        finishedPieces: [],
-        piecesInBase: [
-            { name: "red-1", distanceMoved: 0 },
-            { name: "red-2", distanceMoved: 0 },
-            { name: "red-3", distanceMoved: 0 },
-            { name: "red-4", distanceMoved: 0 },
-        ],
-        diceRollsCount: 0,
-        firstPositionOnBoard: 21,
-        freeFinishPositions: [21, 22, 23, 24],
-        overFinishAreaPositions: [25, 26, 27],
-        resrvedFinishPositions: [],
-    },
-];
+Object.defineProperty(exports, "__esModule", { value: true });
+const consts_1 = require("./consts");
+const helpers_1 = require("./helpers");
 const play = () => {
     let gameOver = false;
-    const boardLength = 28;
-    const gameBoard = Array.from({ length: boardLength }, (_, i) => null);
-    const startingPlayerIndex = Math.floor(Math.random() * players.length);
-    const playerTurnsOrder = players
-        .slice(startingPlayerIndex)
-        .concat(players.slice(0, startingPlayerIndex));
+    const gameBoard = (0, helpers_1.createGameBoard)();
+    const playerTurnsOrder = (0, helpers_1.getPlayersTurnsOrder)(consts_1.players);
     const movePiece = (player, diceRoll) => {
-        const playersPiecesOnGameBoard = gameBoard.filter((v, i) => {
-            return v && v.name.startsWith(player.name);
-        });
-        if (!playersPiecesOnGameBoard &&
-            player.piecesInBase.length > 0 &&
-            diceRoll !== 6) {
+        const playersPiecesOnGameBoard = (0, helpers_1.getPlayersPiecesOnGameBoard)(gameBoard, player);
+        if ((0, helpers_1.noPieceOnBoardAndNoSixRolled)(playersPiecesOnGameBoard, player, diceRoll)) {
             // No piece on the board and the player has pieces in the base but didn't roll a 6, so can't move any piece
             console.log(`Player ${player.name} has no pieces on the board and is trying to get a 6 to move a piece out of the base`);
             console.log("player.piecesInBase", player.piecesInBase);
             console.log("player.finishedPieces", player.finishedPieces);
             return;
         }
-        const handleCollision = (newPosition) => {
-            const pieceAtNewPosition = gameBoard[newPosition];
-            console.log(`handleCollision(${newPosition}) pieceAtNewPosition`, pieceAtNewPosition);
-            if (pieceAtNewPosition) {
-                const otherPlayer = players.find((p) => pieceAtNewPosition.name.startsWith(p.name));
-                if (otherPlayer) {
-                    console.log(`Sending ${pieceAtNewPosition.name} back to base`);
-                    otherPlayer.piecesInBase.push(pieceAtNewPosition);
-                    pieceAtNewPosition.distanceMoved = 0;
-                    console.log("otherPlayer.piecesInBase", otherPlayer.piecesInBase);
-                }
-            }
-        };
-        const isCollidingWithOwnPiece = (newPosition) => {
-            const pieceAtNewPosition = gameBoard[newPosition];
-            return (pieceAtNewPosition &&
-                pieceAtNewPosition.name.startsWith(player.name));
-        };
-        const isPieceCloseToFinish = (piece) => piece.distanceMoved > 20;
-        const isPieceGoingToFinishArea = (piece, newPosition) => isPieceCloseToFinish(piece) &&
-            player.freeFinishPositions.includes(newPosition);
-        const isPieceGoingOverFinishArea = (piece, newPosition) => isPieceCloseToFinish(piece) &&
-            !player.freeFinishPositions.includes(newPosition) &&
-            player.overFinishAreaPositions.includes(newPosition);
-        const isPieceGoingToReservedFinishPosition = (piece, newPosition) => isPieceCloseToFinish(piece) &&
-            player.resrvedFinishPositions.includes(newPosition);
-        const getPieceIndex = (playersPieceToMove) => gameBoard.findIndex((piece) => piece && piece.name === playersPieceToMove.name);
-        const getNewPosition = (playersPieceIndex, diceRoll) => (playersPieceIndex + diceRoll) % boardLength;
-        const setPositionToNull = (pieceIndex) => (gameBoard[pieceIndex] = null);
-        const setPosition = (newPosition, piece) => (gameBoard[newPosition] = piece);
-        const updatePieceDistanceMoved = (piece, diceRoll) => (piece.distanceMoved += diceRoll);
-        const addPositionToReservedFinishPositions = (position) => player.resrvedFinishPositions.push(position);
-        const removePositionFromFreeFinishPositions = (newPosition) => (player.freeFinishPositions = player.freeFinishPositions.filter((pos) => pos !== newPosition));
-        const addPieceToFinishedPieces = (piece) => player.finishedPieces.push(piece);
-        const takeFirstPieceFromBase = () => player.piecesInBase.shift();
         // Priority 1 - Piece that can reach the finish area
-        const piecesThatWouldReachFinishArea = playersPiecesOnGameBoard.filter((piece) => {
-            console.log("newPosition", piece && getNewPosition(getPieceIndex(piece), diceRoll));
-            return (piece &&
-                isPieceGoingToFinishArea(piece, getNewPosition(getPieceIndex(piece), diceRoll)));
-        });
-        console.log("piecesThatWouldReachFinishArea", piecesThatWouldReachFinishArea);
-        if (piecesThatWouldReachFinishArea.length > 0) {
-            const pieceToMove = piecesThatWouldReachFinishArea[0];
-            if (!pieceToMove) {
-                console.log("No piece to move even though it should be able to reach the finish area");
-                return;
-            }
-            const newPosition = getNewPosition(getPieceIndex(pieceToMove), diceRoll);
-            console.log(`Moving ${pieceToMove.name} to finish area to position ${newPosition}`);
-            addPieceToFinishedPieces(pieceToMove);
-            removePositionFromFreeFinishPositions(newPosition);
-            addPositionToReservedFinishPositions(newPosition);
-            updatePieceDistanceMoved(pieceToMove, diceRoll);
-            setPositionToNull(getPieceIndex(pieceToMove));
-            if (player.finishedPieces.length === 4) {
+        const playersPieceThatWouldReachFinishArea = (0, helpers_1.getPlayersPieceThatWouldReachFinishArea)(playersPiecesOnGameBoard, player, gameBoard, diceRoll);
+        if (playersPieceThatWouldReachFinishArea) {
+            const newPosition = (0, helpers_1.getNewPosition)(gameBoard, playersPieceThatWouldReachFinishArea, diceRoll);
+            console.log(`Moving ${playersPieceThatWouldReachFinishArea.name} to finish area to position ${newPosition}`);
+            (0, helpers_1.addPieceToFinishedPieces)(player, playersPieceThatWouldReachFinishArea);
+            (0, helpers_1.removePositionFromFreeFinishPositions)(player, newPosition);
+            (0, helpers_1.addPositionToReservedFinishPositions)(player, newPosition);
+            (0, helpers_1.updatePieceDistanceMoved)(playersPieceThatWouldReachFinishArea, diceRoll);
+            (0, helpers_1.setPositionToNull)(gameBoard, playersPieceThatWouldReachFinishArea);
+            if ((0, helpers_1.hasPlayerFinishedAllPieces)(player)) {
                 gameOver = true;
                 return;
             }
             return;
         }
         // Priority 2 - Piece that is at the player's first position on the board
-        const pieceIndexOnPlayersFirstPosition = gameBoard.findIndex((piece) => piece &&
-            piece.name.startsWith(player.name) &&
-            piece.distanceMoved === 0);
-        if (pieceIndexOnPlayersFirstPosition &&
-            pieceIndexOnPlayersFirstPosition === player.firstPositionOnBoard &&
-            !isCollidingWithOwnPiece(getNewPosition(pieceIndexOnPlayersFirstPosition, diceRoll))) {
-            const pieceToMove = gameBoard[pieceIndexOnPlayersFirstPosition];
-            if (!pieceToMove) {
-                console.log("No piece to move even though it should be at the player's first position on the board");
-                return;
-            }
-            const newPosition = getNewPosition(pieceIndexOnPlayersFirstPosition, diceRoll);
-            console.log(`Player is moving piece ${pieceToMove.name} from the first position on the board to ${newPosition}`);
-            handleCollision(newPosition);
-            setPositionToNull(pieceIndexOnPlayersFirstPosition);
-            setPosition(newPosition, pieceToMove);
-            updatePieceDistanceMoved(pieceToMove, diceRoll);
+        const playersPieceOnTheFirstPositionThatShouldMove = (0, helpers_1.getPlayersPieceOnTheFirstPositionThatShouldMove)(gameBoard, player, diceRoll);
+        if (playersPieceOnTheFirstPositionThatShouldMove) {
+            const newPosition = (0, helpers_1.getNewPosition)(gameBoard, playersPieceOnTheFirstPositionThatShouldMove, diceRoll);
+            console.log(`Player is moving piece ${playersPieceOnTheFirstPositionThatShouldMove.name} from the first position on the board to ${newPosition}`);
+            (0, helpers_1.handleCollision)(gameBoard, consts_1.players, newPosition);
+            (0, helpers_1.setPositionToNull)(gameBoard, playersPieceOnTheFirstPositionThatShouldMove);
+            (0, helpers_1.setPosition)(gameBoard, newPosition, playersPieceOnTheFirstPositionThatShouldMove);
+            (0, helpers_1.updatePieceDistanceMoved)(playersPieceOnTheFirstPositionThatShouldMove, diceRoll);
             return;
         }
         // Priority 3 - Piece that is in the base and the dice roll is 6
-        if (diceRoll === 6 &&
-            player.piecesInBase.length > 0 &&
-            !isCollidingWithOwnPiece(player.firstPositionOnBoard)) {
+        if ((0, helpers_1.shouldMoveAPieceFromBase)(gameBoard, player, diceRoll)) {
             console.log(`Player ${player.name} rolled a 6 and is moving a piece out of the base to ${player.firstPositionOnBoard}`);
-            const pieceToMove = takeFirstPieceFromBase();
+            const pieceToMove = (0, helpers_1.takeFirstPieceFromBase)(player);
             if (!pieceToMove) {
                 console.log(`No piece to move even though the player has pieces in the base, 
                     rolled a 6 and doesn't have a piece on the first position on the board`);
                 return;
             }
-            handleCollision(player.firstPositionOnBoard);
-            setPosition(player.firstPositionOnBoard, pieceToMove);
+            (0, helpers_1.handleCollision)(gameBoard, consts_1.players, player.firstPositionOnBoard);
+            (0, helpers_1.setPosition)(gameBoard, player.firstPositionOnBoard, pieceToMove);
             return;
         }
         // Priority 4 - Piece that is furthest on the board
-        const pieceFurthestOnTheBoard = playersPiecesOnGameBoard.reduce((furthestPiece, currentPiece) => {
-            if (!currentPiece) {
-                return furthestPiece;
-            }
-            if (isPieceGoingToReservedFinishPosition(currentPiece, getNewPosition(getPieceIndex(currentPiece), diceRoll))) {
-                console.log(`${currentPiece.name} is going to a reserved finish position so me move the next furthest piece:`);
-                console.log(`${player.name} reserved finish positions: `, player.resrvedFinishPositions);
-                return furthestPiece;
-            }
-            if (isPieceGoingOverFinishArea(currentPiece, getNewPosition(getPieceIndex(currentPiece), diceRoll))) {
-                console.log(`${currentPiece.name} is going over the finish area so me move the next furthest piece:`);
-                return furthestPiece;
-            }
-            if (isCollidingWithOwnPiece(getNewPosition(getPieceIndex(currentPiece), diceRoll))) {
-                console.log(`${currentPiece.name} is colliding with own piece so me move the next furthest piece:`);
-                return furthestPiece;
-            }
-            if (!furthestPiece ||
-                furthestPiece.distanceMoved < currentPiece.distanceMoved) {
-                return currentPiece;
-            }
-            return furthestPiece;
-        }, null);
-        console.log("pieceFurthestOnTheBoard", pieceFurthestOnTheBoard);
-        if (pieceFurthestOnTheBoard) {
-            const newPosition = getNewPosition(getPieceIndex(pieceFurthestOnTheBoard), diceRoll);
-            console.log(`Moving piece ${pieceFurthestOnTheBoard.name} to ${newPosition}`);
-            handleCollision(newPosition);
-            setPositionToNull(getPieceIndex(pieceFurthestOnTheBoard));
-            setPosition(newPosition, pieceFurthestOnTheBoard);
-            updatePieceDistanceMoved(pieceFurthestOnTheBoard, diceRoll);
+        const pieceFurthestOnTheBoardThatShouldMove = (0, helpers_1.getPlayersPieceFurtherstOnGameBoard)(playersPiecesOnGameBoard, player, gameBoard, diceRoll);
+        console.log("pieceFurthestOnTheBoard", pieceFurthestOnTheBoardThatShouldMove);
+        if (pieceFurthestOnTheBoardThatShouldMove) {
+            const newPosition = (0, helpers_1.getNewPosition)(gameBoard, pieceFurthestOnTheBoardThatShouldMove, diceRoll);
+            console.log(`Moving piece ${pieceFurthestOnTheBoardThatShouldMove.name} to ${newPosition}`);
+            (0, helpers_1.handleCollision)(gameBoard, consts_1.players, newPosition);
+            (0, helpers_1.setPositionToNull)(gameBoard, pieceFurthestOnTheBoardThatShouldMove);
+            (0, helpers_1.setPosition)(gameBoard, newPosition, pieceFurthestOnTheBoardThatShouldMove);
+            (0, helpers_1.updatePieceDistanceMoved)(pieceFurthestOnTheBoardThatShouldMove, diceRoll);
             return;
         }
     };
     while (!gameOver) {
         for (const player of playerTurnsOrder) {
-            const diceRoll = Math.floor(Math.random() * 6) + 1;
+            const diceRoll = (0, helpers_1.rollDice)();
             console.log(`\n !!!!!${player.name} rolled ${diceRoll}!!!!!!!!`);
-            player.diceRollsCount += 1;
+            (0, helpers_1.updatePlayersDiceRollCount)(player);
             movePiece(player, diceRoll);
             console.log(`formatted gameBoard after ${player.name}'s turn`, gameBoard.map((e, i) => ({ i: i, e: e })));
         }
     }
-    console.log(players);
-    console.log(players.map((p) => p.finishedPieces.map((fp) => fp.distanceMoved)));
+    console.log(consts_1.players);
+    console.log(consts_1.players.map((p) => p.finishedPieces.map((fp) => fp.distanceMoved)));
 };
 play();
