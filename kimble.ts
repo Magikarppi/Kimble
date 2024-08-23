@@ -174,12 +174,6 @@ const play = () => {
         const getNewPosition = (playersPieceIndex: number, diceRoll: number) =>
             (playersPieceIndex + diceRoll) % boardLength;
 
-        const playersOwnPieceIsOnFirstPosition = (player: IPlayer) =>
-            gameBoard[player.firstPositionOnBoard] &&
-            gameBoard[player.firstPositionOnBoard]!.name.startsWith(
-                player.name
-            );
-
         const setPositionToNull = (pieceIndex: number) =>
             (gameBoard[pieceIndex] = null);
 
@@ -204,7 +198,7 @@ const play = () => {
 
         // Priority 1 - Piece that can reach the finish area
         const piecesThatWouldReachFinishArea = playersPiecesOnGameBoard.filter(
-            (piece, i) => {
+            (piece) => {
                 console.log(
                     "newPosition",
                     piece && getNewPosition(getPieceIndex(piece), diceRoll)
@@ -262,7 +256,10 @@ const play = () => {
         );
         if (
             pieceIndexOnPlayersFirstPosition &&
-            pieceIndexOnPlayersFirstPosition === player.firstPositionOnBoard
+            pieceIndexOnPlayersFirstPosition === player.firstPositionOnBoard &&
+            !isCollidingWithOwnPiece(
+                getNewPosition(pieceIndexOnPlayersFirstPosition, diceRoll)
+            )
         ) {
             const pieceToMove = gameBoard[pieceIndexOnPlayersFirstPosition];
             if (!pieceToMove) {
@@ -293,7 +290,7 @@ const play = () => {
         if (
             diceRoll === 6 &&
             player.piecesInBase.length > 0 &&
-            !playersOwnPieceIsOnFirstPosition(player)
+            !isCollidingWithOwnPiece(player.firstPositionOnBoard)
         ) {
             console.log(
                 `Player ${player.name} rolled a 6 and is moving a piece out of the base to ${player.firstPositionOnBoard}`
@@ -350,6 +347,17 @@ const play = () => {
                 }
 
                 if (
+                    isCollidingWithOwnPiece(
+                        getNewPosition(getPieceIndex(currentPiece), diceRoll)
+                    )
+                ) {
+                    console.log(
+                        `${currentPiece.name} is colliding with own piece so me move the next furthest piece:`
+                    );
+                    return furthestPiece;
+                }
+
+                if (
                     !furthestPiece ||
                     furthestPiece.distanceMoved < currentPiece.distanceMoved
                 ) {
@@ -360,56 +368,6 @@ const play = () => {
             },
             null
         );
-
-        // let pieceFurthestOnTheBoard = null;
-
-        // for (let i = 0; i < playersPiecesOnGameBoard.length; i++) {
-        //     const currentPiece = playersPiecesOnGameBoard[i];
-        //     if (!currentPiece) {
-        //         continue;
-        //     }
-
-        //     if (
-        //         isPieceGoingToReservedFinishPosition(
-        //             currentPiece,
-        //             getNewPosition(getPieceIndex(currentPiece), diceRoll)
-        //         )
-        //     ) {
-        //         console.log(
-        //             `${currentPiece.name} is going to a reserved finish position so me move the next furthest piece:`
-        //         );
-        //         console.log(
-        //             `${player.name} reserved finish positions: `,
-        //             player.resrvedFinishPositions
-        //         );
-        //         continue;
-        //     }
-
-        //     if (
-        //         isPieceGoingOverFinishArea(
-        //             currentPiece,
-        //             getNewPosition(getPieceIndex(currentPiece), diceRoll)
-        //         )
-        //     ) {
-        //         console.log(
-        //             `${currentPiece.name} is going over the finish area so me move the next furthest piece:`
-        //         );
-        //         continue;
-        //     }
-
-        //     if (!pieceFurthestOnTheBoard) {
-        //         pieceFurthestOnTheBoard = currentPiece;
-        //         continue;
-        //     }
-
-        //     if (
-        //         pieceFurthestOnTheBoard.distanceMoved <
-        //         currentPiece.distanceMoved
-        //     ) {
-        //         pieceFurthestOnTheBoard = currentPiece;
-        //         continue;
-        //     }
-        // }
 
         console.log("pieceFurthestOnTheBoard", pieceFurthestOnTheBoard);
 
