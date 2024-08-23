@@ -1,27 +1,30 @@
 import { players } from "./consts";
 import {
-    addPieceToFinishedPieces,
-    addPositionToReservedFinishPositions,
+    noPieceOnBoardAndNoSixRolled,
+    hasPlayerFinishedAllPieces,
+} from "./helpers/checkHelpers";
+import {
     createGameBoard,
-    getNewPosition,
-    getPieceIndex,
-    getPlayersPieceFurtherstOnGameBoard,
-    getPlayersPieceOnTheFirstPositionThatShouldMove,
-    getPlayersPiecesOnGameBoard,
-    getPlayersPieceThatWouldReachFinishArea,
     getPlayersTurnsOrder,
     handleCollision,
-    hasPlayerFinishedAllPieces,
-    noPieceOnBoardAndNoSixRolled,
-    removePositionFromFreeFinishPositions,
     rollDice,
-    setPosition,
+    updatePlayersDiceRollCount,
+} from "./helpers/gameHelpers";
+import {
+    getPlayersPiecesOnGameBoard,
+    getPlayersPieceThatWouldReachFinishArea,
+    getNewPosition,
+    addPieceToFinishedPieces,
+    removePositionFromFreeFinishPositions,
+    addPositionToReservedFinishPositions,
+    updatePieceDistanceMoved,
     setPositionToNull,
+    getPlayersPieceOnTheFirstPositionThatShouldMove,
+    setPosition,
     shouldMoveAPieceFromBase,
     takeFirstPieceFromBase,
-    updatePieceDistanceMoved,
-    updatePlayersDiceRollCount,
-} from "./helpers";
+    getPlayersPieceFurtherstOnGameBoard,
+} from "./helpers/movementHelpers";
 import { IPlayer } from "./types";
 
 const play = () => {

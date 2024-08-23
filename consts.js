@@ -1,6 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.players = void 0;
+exports.players = exports.boardLength = void 0;
+exports.boardLength = 28;
+const freeFinishPositionsLength = 4;
+const overFinishAreaPositionsLength = 3;
+const playerStartingPositions = {
+    blue: 0,
+    yellow: 7,
+    green: 14,
+    red: 21,
+};
 exports.players = [
     {
         name: "blue",
@@ -13,8 +22,8 @@ exports.players = [
         ],
         diceRollsCount: 0,
         firstPositionOnBoard: 0,
-        freeFinishPositions: [0, 1, 2, 3],
-        overFinishAreaPositions: [4, 5, 6],
+        freeFinishPositions: Array.from({ length: freeFinishPositionsLength }, (_, i) => i),
+        overFinishAreaPositions: Array.from({ length: overFinishAreaPositionsLength }, (_, i) => i + freeFinishPositionsLength),
         resrvedFinishPositions: [],
     },
     {
@@ -27,9 +36,9 @@ exports.players = [
             { name: "yellow-4", distanceMoved: 0 },
         ],
         diceRollsCount: 0,
-        firstPositionOnBoard: 7,
-        freeFinishPositions: [7, 8, 9, 10],
-        overFinishAreaPositions: [11, 12, 13],
+        firstPositionOnBoard: playerStartingPositions.yellow,
+        freeFinishPositions: Array.from({ length: freeFinishPositionsLength }, (_, i) => i + playerStartingPositions.yellow),
+        overFinishAreaPositions: Array.from({ length: overFinishAreaPositionsLength }, (_, i) => i + playerStartingPositions.yellow + freeFinishPositionsLength),
         resrvedFinishPositions: [],
     },
     {
@@ -42,9 +51,9 @@ exports.players = [
             { name: "green-4", distanceMoved: 0 },
         ],
         diceRollsCount: 0,
-        firstPositionOnBoard: 14,
-        freeFinishPositions: [14, 15, 16, 17],
-        overFinishAreaPositions: [18, 19, 20],
+        firstPositionOnBoard: playerStartingPositions.green,
+        freeFinishPositions: Array.from({ length: freeFinishPositionsLength }, (_, i) => i + playerStartingPositions.green),
+        overFinishAreaPositions: Array.from({ length: overFinishAreaPositionsLength }, (_, i) => i + playerStartingPositions.green + freeFinishPositionsLength),
         resrvedFinishPositions: [],
     },
     {
@@ -57,9 +66,9 @@ exports.players = [
             { name: "red-4", distanceMoved: 0 },
         ],
         diceRollsCount: 0,
-        firstPositionOnBoard: 21,
-        freeFinishPositions: [21, 22, 23, 24],
-        overFinishAreaPositions: [25, 26, 27],
+        firstPositionOnBoard: playerStartingPositions.red,
+        freeFinishPositions: Array.from({ length: freeFinishPositionsLength }, (_, i) => i + playerStartingPositions.red),
+        overFinishAreaPositions: Array.from({ length: overFinishAreaPositionsLength }, (_, i) => i + playerStartingPositions.red + freeFinishPositionsLength),
         resrvedFinishPositions: [],
     },
 ];

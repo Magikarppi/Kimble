@@ -1,95 +1,11 @@
-import { IGameBoard, IPiece, IPlayer } from "./types";
-
-const boardLength = 28;
-
-export const createGameBoard = (): IGameBoard =>
-    Array.from({ length: boardLength }, (_, i) => null);
-
-export const rollDice = () => Math.floor(Math.random() * 6) + 1;
-
-export const getPlayersTurnsOrder = (players: IPlayer[]) => {
-    const startingPlayerIndex = Math.floor(Math.random() * players.length);
-
-    return players
-        .slice(startingPlayerIndex)
-        .concat(players.slice(0, startingPlayerIndex));
-};
-export const updatePlayersDiceRollCount = (player: IPlayer) =>
-    player.diceRollsCount++;
-
-export const handleCollision = (
-    gameBoard: IGameBoard,
-    players: IPlayer[],
-    newPosition: number
-) => {
-    const pieceAtNewPosition = gameBoard[newPosition];
-    console.log(
-        `handleCollision(${newPosition}) pieceAtNewPosition`,
-        pieceAtNewPosition
-    );
-
-    if (pieceAtNewPosition) {
-        const otherPlayer = players.find((p) =>
-            pieceAtNewPosition.name.startsWith(p.name)
-        );
-        if (otherPlayer) {
-            console.log(`Sending ${pieceAtNewPosition.name} back to base`);
-            otherPlayer.piecesInBase.push(pieceAtNewPosition);
-            pieceAtNewPosition.distanceMoved = 0;
-            console.log("otherPlayer.piecesInBase", otherPlayer.piecesInBase);
-        }
-    }
-};
-
-export const noPieceOnBoardAndNoSixRolled = (
-    playersPiecesOnGameBoard: IGameBoard,
-    player: IPlayer,
-    diceRoll: number
-) =>
-    !playersPiecesOnGameBoard &&
-    player.piecesInBase.length > 0 &&
-    diceRoll !== 6;
-
-export const isCollidingWithOwnPiece = (
-    gameBoard: IGameBoard,
-    player: IPlayer,
-    newPosition: number
-) => {
-    const pieceAtNewPosition = gameBoard[newPosition];
-    return (
-        pieceAtNewPosition && pieceAtNewPosition.name.startsWith(player.name)
-    );
-};
-
-export const isPieceCloseToFinish = (piece: IPiece) => piece.distanceMoved > 20;
-
-export const isPieceGoingToFinishArea = (
-    piece: IPiece,
-    player: IPlayer,
-    newPosition: number
-) =>
-    isPieceCloseToFinish(piece) &&
-    player.freeFinishPositions.includes(newPosition);
-
-export const isPieceGoingOverFinishArea = (
-    piece: IPiece,
-    player: IPlayer,
-    newPosition: number
-) =>
-    isPieceCloseToFinish(piece) &&
-    !player.freeFinishPositions.includes(newPosition) &&
-    player.overFinishAreaPositions.includes(newPosition);
-
-export const isPieceGoingToReservedFinishPosition = (
-    piece: IPiece,
-    player: IPlayer,
-    newPosition: number
-) =>
-    isPieceCloseToFinish(piece) &&
-    player.resrvedFinishPositions.includes(newPosition);
-
-export const hasPlayerFinishedAllPieces = (player: IPlayer) =>
-    player.finishedPieces.length === 4;
+import { boardLength } from "../consts";
+import { IGameBoard, IPiece, IPlayer } from "../types";
+import {
+    isCollidingWithOwnPiece,
+    isPieceGoingToFinishArea,
+    isPieceGoingToReservedFinishPosition,
+    isPieceGoingOverFinishArea,
+} from "./checkHelpers";
 
 export const getPieceIndex = (
     gameBoard: IGameBoard,
