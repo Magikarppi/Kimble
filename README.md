@@ -13,7 +13,13 @@ npm i
 
 ## Running the game
 
-1. To run a game run:
+1. Build the project (.ts to .js files):
+
+```bash
+npm run build
+```
+
+2. To run a game run:
 
 ```bash
 npm start
