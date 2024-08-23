@@ -78,10 +78,6 @@ export const getPlayersPieceThatWouldReachFinishArea = (
 ) => {
     const piecesThatWouldReachFinishArea = playersPiecesOnGameBoard.filter(
         (piece) => {
-            console.log(
-                "newPosition",
-                piece && getNewPosition(gameBoard, piece, diceRoll)
-            );
             return (
                 piece &&
                 isPieceGoingToFinishArea(
@@ -96,10 +92,7 @@ export const getPlayersPieceThatWouldReachFinishArea = (
     if (piecesThatWouldReachFinishArea.length > 0) {
         const pieceToMove = piecesThatWouldReachFinishArea[0];
         if (!pieceToMove) {
-            console.log(
-                "No piece to move even though it should be able to reach the finish area"
-            );
-            return null;
+            throw new Error("No piece to move even though the check passed");
         }
         return pieceToMove;
     }
@@ -122,12 +115,6 @@ export const getPlayersPieceOnTheFirstPositionThatShouldMove = (
             getNewPosition(gameBoard, pieceOnPlayersFirstPosition, diceRoll)
         )
     ) {
-        if (!pieceOnPlayersFirstPosition) {
-            console.log(
-                "No piece to move even though it should be at the player's first position on the board"
-            );
-            return;
-        }
         return pieceOnPlayersFirstPosition;
     }
 
@@ -152,13 +139,6 @@ export const getPlayersPieceFurtherstOnGameBoard = (
                 getNewPosition(gameBoard, currentPiece, diceRoll)
             )
         ) {
-            console.log(
-                `${currentPiece.name} is going to a reserved finish position so me move the next furthest piece:`
-            );
-            console.log(
-                `${player.name} reserved finish positions: `,
-                player.resrvedFinishPositions
-            );
             return furthestPiece;
         }
 
@@ -169,9 +149,6 @@ export const getPlayersPieceFurtherstOnGameBoard = (
                 getNewPosition(gameBoard, currentPiece, diceRoll)
             )
         ) {
-            console.log(
-                `${currentPiece.name} is going over the finish area so me move the next furthest piece:`
-            );
             return furthestPiece;
         }
 
@@ -182,9 +159,6 @@ export const getPlayersPieceFurtherstOnGameBoard = (
                 getNewPosition(gameBoard, currentPiece, diceRoll)
             )
         ) {
-            console.log(
-                `${currentPiece.name} is colliding with own piece so me move the next furthest piece:`
-            );
             return furthestPiece;
         }
 

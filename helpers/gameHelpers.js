@@ -17,14 +17,11 @@ const updatePlayersDiceRollCount = (player) => player.diceRollsCount++;
 exports.updatePlayersDiceRollCount = updatePlayersDiceRollCount;
 const handleCollision = (gameBoard, players, newPosition) => {
     const pieceAtNewPosition = gameBoard[newPosition];
-    console.log(`handleCollision(${newPosition}) pieceAtNewPosition`, pieceAtNewPosition);
     if (pieceAtNewPosition) {
         const otherPlayer = players.find((p) => pieceAtNewPosition.name.startsWith(p.name));
         if (otherPlayer) {
-            console.log(`Sending ${pieceAtNewPosition.name} back to base`);
             otherPlayer.piecesInBase.push(pieceAtNewPosition);
             pieceAtNewPosition.distanceMoved = 0;
-            console.log("otherPlayer.piecesInBase", otherPlayer.piecesInBase);
         }
     }
 };

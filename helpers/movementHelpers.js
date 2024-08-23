@@ -35,15 +35,13 @@ const shouldMoveAPieceFromBase = (gameBoard, player, diceRoll) => diceRoll === 6
 exports.shouldMoveAPieceFromBase = shouldMoveAPieceFromBase;
 const getPlayersPieceThatWouldReachFinishArea = (playersPiecesOnGameBoard, player, gameBoard, diceRoll) => {
     const piecesThatWouldReachFinishArea = playersPiecesOnGameBoard.filter((piece) => {
-        console.log("newPosition", piece && (0, exports.getNewPosition)(gameBoard, piece, diceRoll));
         return (piece &&
             (0, checkHelpers_1.isPieceGoingToFinishArea)(piece, player, (0, exports.getNewPosition)(gameBoard, piece, diceRoll)));
     });
     if (piecesThatWouldReachFinishArea.length > 0) {
         const pieceToMove = piecesThatWouldReachFinishArea[0];
         if (!pieceToMove) {
-            console.log("No piece to move even though it should be able to reach the finish area");
-            return null;
+            throw new Error("No piece to move even though the check passed");
         }
         return pieceToMove;
     }
@@ -55,10 +53,6 @@ const getPlayersPieceOnTheFirstPositionThatShouldMove = (gameBoard, player, dice
     if (pieceOnPlayersFirstPosition &&
         pieceOnPlayersFirstPosition.name.startsWith(player.name) &&
         !(0, checkHelpers_1.isCollidingWithOwnPiece)(gameBoard, player, (0, exports.getNewPosition)(gameBoard, pieceOnPlayersFirstPosition, diceRoll))) {
-        if (!pieceOnPlayersFirstPosition) {
-            console.log("No piece to move even though it should be at the player's first position on the board");
-            return;
-        }
         return pieceOnPlayersFirstPosition;
     }
     return null;
@@ -69,16 +63,12 @@ const getPlayersPieceFurtherstOnGameBoard = (playersPiecesOnGameBoard, player, g
         return furthestPiece;
     }
     if ((0, checkHelpers_1.isPieceGoingToReservedFinishPosition)(currentPiece, player, (0, exports.getNewPosition)(gameBoard, currentPiece, diceRoll))) {
-        console.log(`${currentPiece.name} is going to a reserved finish position so me move the next furthest piece:`);
-        console.log(`${player.name} reserved finish positions: `, player.resrvedFinishPositions);
         return furthestPiece;
     }
     if ((0, checkHelpers_1.isPieceGoingOverFinishArea)(currentPiece, player, (0, exports.getNewPosition)(gameBoard, currentPiece, diceRoll))) {
-        console.log(`${currentPiece.name} is going over the finish area so me move the next furthest piece:`);
         return furthestPiece;
     }
     if ((0, checkHelpers_1.isCollidingWithOwnPiece)(gameBoard, player, (0, exports.getNewPosition)(gameBoard, currentPiece, diceRoll))) {
-        console.log(`${currentPiece.name} is colliding with own piece so me move the next furthest piece:`);
         return furthestPiece;
     }
     if (!furthestPiece ||

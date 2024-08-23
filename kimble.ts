@@ -28,6 +28,7 @@ import {
 import { IPlayer } from "./types";
 
 const play = () => {
+    let winningPlayer;
     let gameOver = false;
     const gameBoard = createGameBoard();
 
@@ -47,11 +48,6 @@ const play = () => {
             )
         ) {
             // No piece on the board and the player has pieces in the base but didn't roll a 6, so can't move any piece
-            console.log(
-                `Player ${player.name} has no pieces on the board and is trying to get a 6 to move a piece out of the base`
-            );
-            console.log("player.piecesInBase", player.piecesInBase);
-            console.log("player.finishedPieces", player.finishedPieces);
             return;
         }
 
@@ -71,10 +67,6 @@ const play = () => {
                 diceRoll
             );
 
-            console.log(
-                `Moving ${playersPieceThatWouldReachFinishArea.name} to finish area to position ${newPosition}`
-            );
-
             addPieceToFinishedPieces(
                 player,
                 playersPieceThatWouldReachFinishArea
@@ -90,6 +82,7 @@ const play = () => {
 
             if (hasPlayerFinishedAllPieces(player)) {
                 gameOver = true;
+                winningPlayer = player;
                 return;
             }
             return;
@@ -108,10 +101,6 @@ const play = () => {
                 gameBoard,
                 playersPieceOnTheFirstPositionThatShouldMove,
                 diceRoll
-            );
-
-            console.log(
-                `Player is moving piece ${playersPieceOnTheFirstPositionThatShouldMove.name} from the first position on the board to ${newPosition}`
             );
 
             handleCollision(gameBoard, players, newPosition);
@@ -134,17 +123,11 @@ const play = () => {
 
         // Priority 3 - Piece that is in the base and the dice roll is 6
         if (shouldMoveAPieceFromBase(gameBoard, player, diceRoll)) {
-            console.log(
-                `Player ${player.name} rolled a 6 and is moving a piece out of the base to ${player.firstPositionOnBoard}`
-            );
-
             const pieceToMove = takeFirstPieceFromBase(player);
             if (!pieceToMove) {
-                console.log(
-                    `No piece to move even though the player has pieces in the base, 
-                    rolled a 6 and doesn't have a piece on the first position on the board`
+                throw new Error(
+                    "No piece to move from the base even though the check passed"
                 );
-                return;
             }
 
             handleCollision(gameBoard, players, player.firstPositionOnBoard);
@@ -153,7 +136,6 @@ const play = () => {
         }
 
         // Priority 4 - Piece that is furthest on the board
-
         const pieceFurthestOnTheBoardThatShouldMove =
             getPlayersPieceFurtherstOnGameBoard(
                 playersPiecesOnGameBoard,
@@ -161,20 +143,12 @@ const play = () => {
                 gameBoard,
                 diceRoll
             );
-        console.log(
-            "pieceFurthestOnTheBoard",
-            pieceFurthestOnTheBoardThatShouldMove
-        );
 
         if (pieceFurthestOnTheBoardThatShouldMove) {
             const newPosition = getNewPosition(
                 gameBoard,
                 pieceFurthestOnTheBoardThatShouldMove,
                 diceRoll
-            );
-
-            console.log(
-                `Moving piece ${pieceFurthestOnTheBoardThatShouldMove.name} to ${newPosition}`
             );
 
             handleCollision(gameBoard, players, newPosition);
@@ -196,22 +170,12 @@ const play = () => {
     while (!gameOver) {
         for (const player of playerTurnsOrder) {
             const diceRoll = rollDice();
-
-            console.log(`\n !!!!!${player.name} rolled ${diceRoll}!!!!!!!!`);
             updatePlayersDiceRollCount(player);
-
             movePiece(player, diceRoll);
-
-            console.log(
-                `formatted gameBoard after ${player.name}'s turn`,
-                gameBoard.map((e, i) => ({ i: i, e: e }))
-            );
         }
     }
-    console.log(players);
-    console.log(
-        players.map((p) => p.finishedPieces.map((fp) => fp.distanceMoved))
-    );
+
+    console.log("winningPlayer", winningPlayer);
 };
 
 play();
