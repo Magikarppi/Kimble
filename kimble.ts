@@ -23,7 +23,7 @@ import {
     setPosition,
     shouldMoveAPieceFromBase,
     takeFirstPieceFromBase,
-    getPlayersPieceFurtherstOnGameBoard,
+    getPlayersPieceFurtherstOnGameBoardThatCanMove,
 } from "./helpers/movementHelpers";
 import { IPlayer } from "./types";
 
@@ -142,10 +142,9 @@ const play = () => {
 
         // Priority 4 - Piece that is furthest on the board
         const pieceFurthestOnTheBoardThatShouldMove =
-            getPlayersPieceFurtherstOnGameBoard(
-                playersPiecesOnGameBoard,
-                player,
+            getPlayersPieceFurtherstOnGameBoardThatCanMove(
                 gameBoard,
+                player,
                 diceRoll
             );
 

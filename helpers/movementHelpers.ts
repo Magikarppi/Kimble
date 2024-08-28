@@ -121,13 +121,17 @@ export const getPlayersPieceOnTheFirstPositionThatShouldMove = (
     return null;
 };
 
-export const getPlayersPieceFurtherstOnGameBoard = (
-    playersPiecesOnGameBoard: IGameBoard,
-    player: IPlayer,
+export const getPlayersPieceFurtherstOnGameBoardThatCanMove = (
     gameBoard: IGameBoard,
+    player: IPlayer,
     diceRoll: number
-) =>
-    playersPiecesOnGameBoard.reduce((furthestPiece, currentPiece) => {
+): IPiece | null => {
+    const playersPiecesOnGameBoard = getPlayersPiecesOnGameBoard(
+        gameBoard,
+        player
+    );
+
+    return playersPiecesOnGameBoard.reduce((furthestPiece, currentPiece) => {
         if (!currentPiece) {
             return furthestPiece;
         }
@@ -171,3 +175,4 @@ export const getPlayersPieceFurtherstOnGameBoard = (
 
         return furthestPiece;
     }, null);
+};
