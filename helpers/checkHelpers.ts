@@ -5,7 +5,7 @@ export const noPieceOnBoardAndNoSixRolled = (
     player: IPlayer,
     diceRoll: number
 ) =>
-    !playersPiecesOnGameBoard &&
+    playersPiecesOnGameBoard.length === 0 &&
     player.piecesInBase.length > 0 &&
     diceRoll !== 6;
 
@@ -13,9 +13,9 @@ export const isCollidingWithOwnPiece = (
     gameBoard: IGameBoard,
     player: IPlayer,
     newPosition: number
-) => {
+): boolean => {
     const pieceAtNewPosition = gameBoard[newPosition];
-    return (
+    return !!(
         pieceAtNewPosition && pieceAtNewPosition.name.startsWith(player.name)
     );
 };
