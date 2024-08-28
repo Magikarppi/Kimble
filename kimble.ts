@@ -1,12 +1,12 @@
-import { players } from "./consts";
 import {
     noPieceOnBoardAndNoSixRolled,
     hasPlayerFinishedAllPieces,
 } from "./helpers/checkHelpers";
 import {
     createGameBoard,
+    createPlayers,
     getPlayersTurnsOrder,
-    handleCollision,
+    handleCollisionWithOtherPlayer,
     rollDice,
     updatePlayersDiceRollCount,
 } from "./helpers/gameHelpers";
@@ -31,6 +31,7 @@ const play = () => {
     let winningPlayer;
     let gameOver = false;
     const gameBoard = createGameBoard();
+    const players = createPlayers(["blue", "yellow", "green", "red"]);
 
     const playerTurnsOrder = getPlayersTurnsOrder(players);
 
@@ -103,7 +104,7 @@ const play = () => {
                 diceRoll
             );
 
-            handleCollision(gameBoard, players, newPosition);
+            handleCollisionWithOtherPlayer(gameBoard, players, newPosition);
 
             setPositionToNull(
                 gameBoard,
@@ -130,7 +131,11 @@ const play = () => {
                 );
             }
 
-            handleCollision(gameBoard, players, player.firstPositionOnBoard);
+            handleCollisionWithOtherPlayer(
+                gameBoard,
+                players,
+                player.firstPositionOnBoard
+            );
             setPosition(gameBoard, player.firstPositionOnBoard, pieceToMove);
             return;
         }
@@ -151,7 +156,7 @@ const play = () => {
                 diceRoll
             );
 
-            handleCollision(gameBoard, players, newPosition);
+            handleCollisionWithOtherPlayer(gameBoard, players, newPosition);
 
             setPositionToNull(gameBoard, pieceFurthestOnTheBoardThatShouldMove);
             setPosition(

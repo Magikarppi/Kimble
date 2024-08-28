@@ -1,4 +1,3 @@
-import { players } from "../../consts";
 import { IGameBoard, IPlayer } from "../../types";
 import {
     hasPlayerFinishedAllPieces,
@@ -8,8 +7,15 @@ import {
     isPieceGoingToReservedFinishPosition,
     noPieceOnBoardAndNoSixRolled,
 } from "../checkHelpers";
+import { createPlayers } from "../gameHelpers";
 
 describe("checkHelpers", () => {
+    let players: IPlayer[] = createPlayers(["blue", "yellow", "green", "red"]);
+
+    beforeEach(() => {
+        players = createPlayers(["blue", "yellow", "green", "red"]);
+    });
+
     describe("noPieceOnBoardAndNoSixRolled", () => {
         it("should return true if player has pieces in base but not on board and player didn't roll a 6", () => {
             const playersPiecesOnGameBoard: IGameBoard = [];
@@ -141,9 +147,6 @@ describe("checkHelpers", () => {
             const player: IPlayer = players[0];
             const newPosition = 3;
 
-            console.log(gameBoard);
-            console.log(player);
-            console.log("gameBoard[newPosition]: ", gameBoard[newPosition]);
             expect(
                 isCollidingWithOwnPiece(gameBoard, player, newPosition)
             ).toEqual(true);

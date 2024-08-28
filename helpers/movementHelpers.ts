@@ -1,4 +1,3 @@
-import { boardLength } from "../consts";
 import { IGameBoard, IPiece, IPlayer } from "../types";
 import {
     isCollidingWithOwnPiece,
@@ -6,6 +5,7 @@ import {
     isPieceGoingToReservedFinishPosition,
     isPieceGoingOverFinishArea,
 } from "./checkHelpers";
+import { boardLength } from "./gameHelpers";
 
 export const getPieceIndex = (
     gameBoard: IGameBoard,
