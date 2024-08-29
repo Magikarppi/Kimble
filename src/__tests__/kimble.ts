@@ -212,7 +212,7 @@ describe("play function", () => {
         diceRolls = [...diceRolls, 4, 1, 1, 1];
         // blue lands the fourth piece on the finish position (3) and wins the game!
 
-        const winningPlayer = play(
+        const { winningPlayer } = play(
             undefined,
             players,
             playersTurnsOrder,

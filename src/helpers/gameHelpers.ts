@@ -126,3 +126,6 @@ export const handleCollisionWithOtherPlayer = (
         }
     }
 };
+
+export const getAverage = (arr: number[]) =>
+    Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);

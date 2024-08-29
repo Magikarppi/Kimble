@@ -3,6 +3,7 @@ import {
     boardLength,
     createGameBoard,
     createPlayers,
+    getAverage,
     getPlayersTurnsOrder,
     handleCollisionWithOtherPlayer,
     rollDice,
@@ -141,6 +142,14 @@ describe("gameHelpers", () => {
             handleCollisionWithOtherPlayer(gameBoard, players, newPosition);
             expect(player1.piecesInBase).toContain(piece);
             expect(piece!.distanceMoved).toBe(0);
+        });
+    });
+
+    describe("getAverage", () => {
+        it("should return the average of the numbers in the array", () => {
+            const numbers = [1, 2, 3, 4, 5];
+            const average = getAverage(numbers);
+            expect(average).toBe(3);
         });
     });
 });

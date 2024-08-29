@@ -5,6 +5,7 @@ import {
 import {
     createGameBoard,
     createPlayers,
+    getAverage,
     getPlayersTurnsOrder,
     handleCollisionWithOtherPlayer,
     rollDice,
@@ -27,13 +28,18 @@ import {
 } from "./helpers/movementHelpers";
 import { IGameBoard, IPlayer } from "./types";
 
+const diceRollsWhenFirstPlayerIsTheWinner: number[] = [];
+const gameIterations = process.argv[2] ? parseInt(process.argv[2]) : 10000;
+const isTestEnvironment = process.env.NODE_ENV === "test";
+
 export const play = (
     gameBoard: IGameBoard = createGameBoard(),
     players: IPlayer[] = createPlayers(["blue", "yellow", "green", "red"]),
     playerTurnsOrder: IPlayer[] = getPlayersTurnsOrder(players),
     diceRolls?: number[]
-): IPlayer => {
+): { winningPlayer: IPlayer; startingPlayer: IPlayer } => {
     let winningPlayer;
+    let startingPlayer = playerTurnsOrder[0];
     let gameOver = false;
     let diceRollIndex = 0;
 
@@ -189,8 +195,24 @@ export const play = (
         throw new Error("No winning player found");
     }
 
-    return winningPlayer;
+    return { winningPlayer, startingPlayer };
 };
 
-const winningPlayer = play();
-console.log("Winning player:", winningPlayer);
+if (isTestEnvironment) {
+    const { winningPlayer } = play();
+    console.log("Winner:", winningPlayer);
+} else {
+    for (let i = 0; i < gameIterations; i++) {
+        const { winningPlayer, startingPlayer } = play();
+        if (winningPlayer.name === startingPlayer.name) {
+            diceRollsWhenFirstPlayerIsTheWinner.push(
+                winningPlayer.diceRollsCount
+            );
+        }
+    }
+
+    console.log(
+        `Average number of dice rolls when the first player is the winner in ${gameIterations} games:`,
+        getAverage(diceRollsWhenFirstPlayerIsTheWinner)
+    );
+}
