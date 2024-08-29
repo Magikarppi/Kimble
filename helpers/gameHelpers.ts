@@ -49,8 +49,7 @@ export const createPlayers = (playerNames: string[]): IPlayer[] => [
         ),
         overFinishAreaPositions: Array.from(
             { length: overFinishAreaPositionsLength },
-            (_, i) => i + playerStartingPositions[1],
-            +freeFinishPositionsLength
+            (_, i) => i + playerStartingPositions[1] + freeFinishPositionsLength
         ),
         resrvedFinishPositions: [],
     },
@@ -71,8 +70,7 @@ export const createPlayers = (playerNames: string[]): IPlayer[] => [
         ),
         overFinishAreaPositions: Array.from(
             { length: overFinishAreaPositionsLength },
-            (_, i) => i + playerStartingPositions[2],
-            +freeFinishPositionsLength
+            (_, i) => i + playerStartingPositions[2] + freeFinishPositionsLength
         ),
         resrvedFinishPositions: [],
     },
@@ -93,8 +91,7 @@ export const createPlayers = (playerNames: string[]): IPlayer[] => [
         ),
         overFinishAreaPositions: Array.from(
             { length: overFinishAreaPositionsLength },
-            (_, i) => i + playerStartingPositions[3],
-            +freeFinishPositionsLength
+            (_, i) => i + playerStartingPositions[3] + freeFinishPositionsLength
         ),
         resrvedFinishPositions: [],
     },

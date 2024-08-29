@@ -16,6 +16,78 @@ describe("gameHelpers", () => {
         players = createPlayers(["blue", "yellow", "green", "red"]);
     });
 
+    describe("createPlayers", () => {
+        it("should create players with the correct length", () => {
+            expect(players.length).toBe(4);
+        });
+
+        it("should create players with the correct properties", () => {
+            const player = players[0];
+            expect(player.name).toBe("blue");
+            expect(player.finishedPieces.length).toBe(0);
+            expect(player.piecesInBase.length).toBe(4);
+            expect(player.diceRollsCount).toBe(0);
+            expect(player.firstPositionOnBoard).toBe(0);
+            expect(player.freeFinishPositions.length).toBe(4);
+            expect(player.overFinishAreaPositions.length).toBe(3);
+            expect(player.overFinishAreaPositions[0]).toBe(4);
+            expect(player.overFinishAreaPositions[1]).toBe(5);
+            expect(player.overFinishAreaPositions[2]).toBe(6);
+            expect(player.resrvedFinishPositions.length).toBe(0);
+
+            const player2 = players[1];
+            expect(player2.name).toBe("yellow");
+            expect(player2.finishedPieces.length).toBe(0);
+            expect(player2.piecesInBase.length).toBe(4);
+            expect(player2.diceRollsCount).toBe(0);
+            expect(player2.firstPositionOnBoard).toBe(7);
+            expect(player2.freeFinishPositions.length).toBe(4);
+            expect(player2.freeFinishPositions[0]).toBe(7);
+            expect(player2.freeFinishPositions[1]).toBe(8);
+            expect(player2.freeFinishPositions[2]).toBe(9);
+            expect(player2.freeFinishPositions[3]).toBe(10);
+            expect(player2.overFinishAreaPositions.length).toBe(3);
+            expect(player2.overFinishAreaPositions[0]).toBe(11);
+            expect(player2.overFinishAreaPositions[1]).toBe(12);
+            expect(player2.overFinishAreaPositions[2]).toBe(13);
+            expect(player2.resrvedFinishPositions.length).toBe(0);
+
+            const player3 = players[2];
+            expect(player3.name).toBe("green");
+            expect(player3.finishedPieces.length).toBe(0);
+            expect(player3.piecesInBase.length).toBe(4);
+            expect(player3.diceRollsCount).toBe(0);
+            expect(player3.firstPositionOnBoard).toBe(14);
+            expect(player3.freeFinishPositions.length).toBe(4);
+            expect(player3.freeFinishPositions[0]).toBe(14);
+            expect(player3.freeFinishPositions[1]).toBe(15);
+            expect(player3.freeFinishPositions[2]).toBe(16);
+            expect(player3.freeFinishPositions[3]).toBe(17);
+            expect(player3.overFinishAreaPositions.length).toBe(3);
+            expect(player3.overFinishAreaPositions[0]).toBe(18);
+            expect(player3.overFinishAreaPositions[1]).toBe(19);
+            expect(player3.overFinishAreaPositions[2]).toBe(20);
+            expect(player3.resrvedFinishPositions.length).toBe(0);
+
+            const player4 = players[3];
+            expect(player4.name).toBe("red");
+            expect(player4.finishedPieces.length).toBe(0);
+            expect(player4.piecesInBase.length).toBe(4);
+            expect(player4.diceRollsCount).toBe(0);
+            expect(player4.firstPositionOnBoard).toBe(21);
+            expect(player4.freeFinishPositions.length).toBe(4);
+            expect(player4.freeFinishPositions[0]).toBe(21);
+            expect(player4.freeFinishPositions[1]).toBe(22);
+            expect(player4.freeFinishPositions[2]).toBe(23);
+            expect(player4.freeFinishPositions[3]).toBe(24);
+            expect(player4.overFinishAreaPositions.length).toBe(3);
+            expect(player4.overFinishAreaPositions[0]).toBe(25);
+            expect(player4.overFinishAreaPositions[1]).toBe(26);
+            expect(player4.overFinishAreaPositions[2]).toBe(27);
+            expect(player4.resrvedFinishPositions.length).toBe(0);
+        });
+    });
+
     describe("createGameBoard", () => {
         it("should create a game board with the correct length", () => {
             const gameBoard = createGameBoard();

@@ -25,15 +25,17 @@ import {
     takeFirstPieceFromBase,
     getPlayersPieceFurtherstOnGameBoardThatCanMove,
 } from "./helpers/movementHelpers";
-import { IPlayer } from "./types";
+import { IGameBoard, IPlayer } from "./types";
 
-const play = () => {
+export const play = (
+    gameBoard: IGameBoard = createGameBoard(),
+    players: IPlayer[] = createPlayers(["blue", "yellow", "green", "red"]),
+    playerTurnsOrder: IPlayer[] = getPlayersTurnsOrder(players),
+    diceRolls?: number[]
+): IPlayer => {
     let winningPlayer;
     let gameOver = false;
-    const gameBoard = createGameBoard();
-    const players = createPlayers(["blue", "yellow", "green", "red"]);
-
-    const playerTurnsOrder = getPlayersTurnsOrder(players);
+    let diceRollIndex = 0;
 
     const movePiece = (player: IPlayer, diceRoll: number) => {
         const playersPiecesOnGameBoard = getPlayersPiecesOnGameBoard(
@@ -81,11 +83,6 @@ const play = () => {
             );
             setPositionToNull(gameBoard, playersPieceThatWouldReachFinishArea);
 
-            if (hasPlayerFinishedAllPieces(player)) {
-                gameOver = true;
-                winningPlayer = player;
-                return;
-            }
             return;
         }
 
@@ -173,13 +170,27 @@ const play = () => {
 
     while (!gameOver) {
         for (const player of playerTurnsOrder) {
-            const diceRoll = rollDice();
+            const diceRoll = diceRolls
+                ? diceRolls[diceRollIndex++]
+                : rollDice();
+
             updatePlayersDiceRollCount(player);
             movePiece(player, diceRoll);
+
+            if (hasPlayerFinishedAllPieces(player)) {
+                winningPlayer = player;
+                gameOver = true;
+                break;
+            }
         }
     }
 
-    console.log("winningPlayer", winningPlayer);
+    if (!winningPlayer) {
+        throw new Error("No winning player found");
+    }
+
+    return winningPlayer;
 };
 
-play();
+const winningPlayer = play();
+console.log("Winning player:", winningPlayer);
