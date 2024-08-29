@@ -6,7 +6,7 @@ describe("play function", () => {
         const players = createPlayers(["blue", "yellow", "green", "red"]);
         const playersTurnsOrder = [...players];
 
-        let diceRolls = [];
+        let diceRolls: number[] = [];
 
         /* Turn round 1: All players roll a 6 and move a piece out of the base 
             to positions 0, 7, 14, 21 respectively.
@@ -219,5 +219,6 @@ describe("play function", () => {
             diceRolls
         );
         expect(winningPlayer).toBe(players[0]);
+        expect(winningPlayer.name).toEqual("blue");
     });
 });
